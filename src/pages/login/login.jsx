@@ -1,15 +1,31 @@
-import React from 'react';
+import React, {useEffect} from 'react';
 import {useNavigate} from "react-router-dom";
 import {Button, Form, Input, message} from 'antd';
 import {UserOutlined, LockOutlined} from '@ant-design/icons';
+import cookie from 'react-cookies';
+import {connect} from 'react-redux';//connect用于连接UI组件与redux
 
 import ajaxMtd from "../../api/ajax";
+import {
+    createSaveLoginUserAction,
+    createRemoveLoginUserAction
+} from "../../redux/actions/login-user";
 
 import './login.less';
 import logo from '../../assets/img/logo.png';
 
-function Login() {
+function Login(props) {
+    const {saveLoginUser, removeLoginUser} = props;
     const navigate = useNavigate();//useNavigate Hook用于实现编程路由导航
+
+    //使用useEffect模拟生命周期回调componentDidUpdate
+    useEffect(() => {
+        //检查是否已登陆
+        const userIdCookie = cookie.load('userid');
+        if (userIdCookie) {
+            navigate('/');//已登陆时，跳转到主页
+        }
+    });
 
     const handleLoginSubmit = async loginData => {
         //发送请求，进行登陆
@@ -19,8 +35,13 @@ function Login() {
             'POST'
         );
         if (response.status === 0) {//登陆成功，跳转到主页
+            //登陆成功，保存cookie
+            const expDate = new Date(Date.now() + 1000 * 60 * 60);//cookie在一小时后过期
+            cookie.save('userid', response.data._id, {expires: expDate});
+            saveLoginUser(response.data);
             navigate('/');
         } else {//登陆失败，弹窗提示
+            removeLoginUser();
             message.error(response.msg);
         }
     }
@@ -67,4 +88,11 @@ function Login() {
     );
 }
 
-export default Login;
+export default connect(
+    state => ({
+        loginUser: state.loginUser
+    }), {
+        saveLoginUser: createSaveLoginUserAction,
+        removeLoginUser: createRemoveLoginUserAction,
+    }
+)(Login);
