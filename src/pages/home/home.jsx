@@ -1,9 +1,10 @@
 import React from 'react';
+import './home.less';
 
-function Home(props) {
+function Home() {
     return (
-        <div>
-            Home
+        <div className={'home-content'}>
+            欢迎使用HeyThere商品管理系统
         </div>
     );
 }
