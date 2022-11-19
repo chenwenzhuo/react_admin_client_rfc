@@ -1,15 +1,23 @@
 import React, {useEffect} from 'react';
-import {useNavigate} from "react-router-dom";
+import {Navigate, Route, Routes, useNavigate} from "react-router-dom";
 import {Layout} from 'antd';
 import cookie from "react-cookies";
 import {connect} from "react-redux";
 
-import LeftNav from "../../components/left-nav/left-nav";
 import './admin.less';
 import {
     createSaveLoginUserAction,
     createRemoveLoginUserAction
 } from "../../redux/actions/login-user";
+import LeftNav from "../../components/left-nav/left-nav";
+import Home from "../home/home";
+import Category from "../category/category";
+import Product from "../product/product";
+import User from "../user/user";
+import Role from "../role/role";
+import BarChart from "../charts/barchart";
+import LineChart from "../charts/linechart";
+import Piechart from "../charts/piechart";
 
 const {Header, Footer, Sider, Content} = Layout;
 
@@ -32,14 +40,27 @@ function Admin(props) {
     });
 
     return (
-        <Layout className={'admin-layout'}>
-            <Sider className={'admin-sider'} width={260}>
+        <Layout className={'layout-outer'}>
+            <Sider width={280}>
                 <LeftNav/>
             </Sider>
-            <Layout>
+            <Layout className={'layout-inner'}>
                 <Header style={{color: "blue", backgroundColor: '#bbdeac'}}>Header</Header>
-                <Content>Content</Content>
-                <Footer>Footer</Footer>
+                <Content className={'content'}>
+                    <Routes>
+                        <Route path={'/home'} element={<Home/>}/>
+                        <Route path={'/category'} element={<Category/>}/>
+                        <Route path={'/product'} element={<Product/>}/>
+                        <Route path={'/user'} element={<User/>}/>
+                        <Route path={'/role'} element={<Role/>}/>
+                        <Route path={'/barchart'} element={<BarChart/>}/>
+                        <Route path={'/linechart'} element={<LineChart/>}/>
+                        <Route path={'/piechart'} element={<Piechart/>}/>
+                        {/*以上路径都不匹配时，定向到首页*/}
+                        <Route path={'*'} element={<Navigate to={'/home'}/>}/>
+                    </Routes>
+                </Content>
+                <Footer className={'footer'}>推荐使用谷歌浏览器，可获得更佳浏览体验</Footer>
             </Layout>
         </Layout>
     );
