@@ -5,6 +5,8 @@ import {Provider} from 'react-redux'
 import {PersistGate} from "redux-persist/integration/react";
 import store from './redux/store'
 import {persistor} from "./redux/store";
+import {ConfigProvider} from "antd";
+import zhCN from 'antd/es/locale/zh_CN';//中文语言包
 import App from './App';
 import './index.css';
 
@@ -21,7 +23,9 @@ ReactDOM.render(
     <Provider store={store}>
         <PersistGate loading={null} persistor={persistor}>
             <React.StrictMode>
-                <App/>
+                <ConfigProvider locale={zhCN}>
+                    <App/>
+                </ConfigProvider>
             </React.StrictMode>
         </PersistGate>
     </Provider>,
