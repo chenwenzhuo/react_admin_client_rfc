@@ -30,7 +30,7 @@ function Login(props) {
     const handleLoginSubmit = async loginData => {
         //发送请求，进行登陆
         const response = await ajaxMtd(
-            '/ajaxProxy/login',
+            '/login',
             {username: loginData.username, password: loginData.password},
             'POST'
         );
