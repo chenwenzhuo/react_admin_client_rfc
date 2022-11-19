@@ -10,6 +10,7 @@ import {
     createRemoveLoginUserAction
 } from "../../redux/actions/login-user";
 import LeftNav from "../../components/left-nav/left-nav";
+import Header from "../../components/header/header"
 import Home from "../home/home";
 import Category from "../category/category";
 import Product from "../product/product";
@@ -19,7 +20,7 @@ import BarChart from "../charts/barchart";
 import LineChart from "../charts/linechart";
 import Piechart from "../charts/piechart";
 
-const {Header, Footer, Sider, Content} = Layout;
+const {Footer, Sider, Content} = Layout;
 
 function Admin(props) {
     const {removeLoginUser} = props;
@@ -45,7 +46,7 @@ function Admin(props) {
                 <LeftNav/>
             </Sider>
             <Layout className={'layout-inner'}>
-                <Header style={{color: "blue", backgroundColor: '#bbdeac'}}>Header</Header>
+                <Header/>
                 <Content className={'content'}>
                     <Routes>
                         <Route path={'/home'} element={<Home/>}/>
