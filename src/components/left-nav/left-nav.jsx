@@ -120,8 +120,6 @@ function LeftNav(props) {
      * @param keyPath 数组，元素依次为最内层子菜单到外层菜单的key值
      */
     function onMenuItemClick({key, keyPath}) {//解构获得被点击的菜单项key值和keyPath
-        console.log('key--------------', key);
-        console.log('keyPath--------------', keyPath);
         //查找被点击的菜单项名称
         const fatherItem = items.find(it => it.key === keyPath[keyPath.length - 1]);//外层菜单项
         if (keyPath.length === 1) {//keyPath长度为1，则点击的是外层菜单，可直接跳转
