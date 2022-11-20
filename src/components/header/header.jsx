@@ -42,7 +42,7 @@ function Header(props) {
     function updateCurrentTime() {
         function getFormatDate() {
             const curDate = new Date(Date.now());
-            return curDate.getFullYear() + '-' + (curDate.getMonth() + 1) + '-' + curDate.getDay() +
+            return curDate.getFullYear() + '-' + (curDate.getMonth() + 1) + '-' + curDate.getDate() +
                 ' ' + curDate.getHours() + ':' + curDate.getMinutes() + ':' +
                 (curDate.getSeconds() >= 10 ? curDate.getSeconds() : '0' + curDate.getSeconds());
         }
