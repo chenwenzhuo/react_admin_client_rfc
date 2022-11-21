@@ -29,15 +29,15 @@ function Category() {
             {
                 title: '操作', width: 360, render: category => (
                     <>
-                        <button className={'op-btn'} onClick={() => showOperationModal(category, 2)}>
+                        <button className={'op-btn-cate'} onClick={() => showOperationModal(category, 2)}>
                             修改分类名称
                         </button>
                         {parentCateId !== '0' ? null :
-                            <button className={'op-btn op-btn-margin'}
+                            <button className={'op-btn-cate view-sub-cate-btn'}
                                     onClick={() => showSubCategories(category)}>
                                 查看子分类
                             </button>}
-                        <button className={'op-btn op-btn-margin'} onClick={() => handleDeleteCate(category)}>
+                        <button className={'op-btn-cate'} onClick={() => handleDeleteCate(category)}>
                             删除分类
                         </button>
                     </>
