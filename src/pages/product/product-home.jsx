@@ -1,5 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
+import {useNavigate} from "react-router-dom";
 import {
     Card, Select, Input, Button, Table, message
 } from "antd";
@@ -17,6 +18,8 @@ function ProductHome() {
     const [searchKey, setSearchKey] = useState('');//搜索商品时的关键字
     const [searchType, setSearchType] = useState('productName');//搜索商品的方式，按名称/描述搜索
 
+    const navigate = useNavigate();
+
     //组件挂载时，查询商品信息
     useEffect(() => {
         reqProducts(tablePage, tablePageSize);
@@ -27,16 +30,37 @@ function ProductHome() {
         reqProducts(tablePage, tablePageSize);
     }, [tablePage, tablePageSize]);
 
-    function handleSearchProduct() {
-        console.log('-----------------handleSearchProduct-----------------');
+    //当搜索关键字清空时，查询全部数据
+    useEffect(() => {
+        if (tablePage === 1) {//若表格当前在第一页，直接查询数据
+            reqProducts(1, tablePageSize);
+        } else {//当前表格不在第一页，跳转回第一页，然后通过tablePage的变化回调查询数据
+            setTablePage(1);
+        }
+    }, [searchKey]);
+
+    async function handleSearchProduct() {
+        const response = await ajaxMtd('/manage/product/search', {
+            pageNum: 1, pageSize: tablePageSize, searchType, productName: searchKey, productDesc: searchKey
+        });
+        if (response.status === 0) {
+            setProducts(response.data.list);
+            setProdTotal(response.data.total);
+        } else {
+            message.error('查询商品出错');
+        }
     }
 
-    function handleAddProduct() {
-        console.log('-----------------handleAddProduct-----------------');
+    function handleAddUpdateProduct(product) {
+        console.log('-----------------handleAddUpdateProduct-----------------');
+        navigate('add_update', {replace: false, state: {product}});
+    }
+
+    function showProductDetail(product) {
+        navigate('detail', {replace: false, state: {product}});
     }
 
     async function changeProductStatus(product) {
-        console.log('-----------------changeProductStatus-----------------');
         const response = await ajaxMtd('/manage/product/updateStatus', {
             productId: product._id,
             status: (product.status === 1 ? 0 : 1)
@@ -80,7 +104,7 @@ function ProductHome() {
         </>
     );
     const cardExtra = (
-        <Button type={'primary'} onClick={handleAddProduct}>
+        <Button type={'primary'} onClick={() => handleAddUpdateProduct()}>
             <PlusOutlined/>添加商品
         </Button>
     )
@@ -101,8 +125,12 @@ function ProductHome() {
     }, {
         title: '操作', align: 'center', width: 200, render: product => (
             <>
-                <button className={'op-btn-prod'}>详情</button>
-                <button className={'op-btn-prod mod-btn'}>修改</button>
+                <button className={'op-btn-prod'} onClick={() => showProductDetail(product)}>
+                    详情
+                </button>
+                <button className={'op-btn-prod mod-btn'} onClick={() => handleAddUpdateProduct(product)}>
+                    修改
+                </button>
                 <button className={'op-btn-prod'} onClick={() => changeProductStatus(product)}>
                     {product.status === 1 ? '下' : '上'}架
                 </button>
@@ -114,8 +142,9 @@ function ProductHome() {
             <Table columns={tableColumns} dataSource={products} rowKey={'_id'}
                    pagination={{
                        total: prodTotal,
-                       defaultPageSize: 10,
-                       pageSizeOptions: [5, 10, 20, 50],
+                       current: tablePage,//表格当前页码
+                       defaultPageSize: tablePageSize,
+                       pageSizeOptions: [10, 20, 50],
                        showQuickJumper: true,
                        showSizeChanger: true,
                        onChange: onTablePaginationChange
