@@ -5,6 +5,7 @@ import {Button, Card, Cascader, Form, Input, message} from 'antd'
 import {ArrowLeftOutlined} from '@ant-design/icons';
 
 import ajaxMtd from "../../api/ajax";
+import PictureWall from "./picture-wall";
 
 const {Item} = Form;
 const {TextArea} = Input;
@@ -90,6 +91,10 @@ function ProductAddUpdate(props) {
         });
     }
 
+    function setProductImages(imgs) {
+
+    }
+
     function validatePrice(_, value) {
         return new Promise((resolve, reject) => {
             if (value <= 0) {
@@ -127,6 +132,10 @@ function ProductAddUpdate(props) {
                 <Item label={'商品分类'} name={'prodCategories'} initialValue={initCateIds}
                       rules={[{required: true, message: '必须选择商品分类'}]}>
                     <Cascader placeholder={'请选择商品分类'} options={categories} loadData={loadSubCategories}/>
+                </Item>
+                <Item label={'商品图片'}>
+                    {/*imgs用于在更新商品时显示已有图片，setProductImages函数用于将子组件的图片文件名传递至父组件*/}
+                    <PictureWall imgs={product ? product.imgs : []} setProductImages={setProductImages}/>
                 </Item>
             </Form>
         </Card>
