@@ -3,6 +3,8 @@ import React, {useEffect, useState} from 'react';
 import {useLocation} from "react-router-dom";
 import {Button, Card, Cascader, Form, Input, message} from 'antd'
 import {ArrowLeftOutlined} from '@ant-design/icons';
+import BraftEditor from 'braft-editor'
+import 'braft-editor/dist/index.css'
 
 import ajaxMtd from "../../api/ajax";
 import PictureWall from "./picture-wall";
@@ -10,10 +12,11 @@ import PictureWall from "./picture-wall";
 const {Item} = Form;
 const {TextArea} = Input;
 
-function ProductAddUpdate(props) {
+function ProductAddUpdate() {
     const {state: {product}} = useLocation();//取state参数
     const [categories, setCategories] = useState([]);//商品一级分类数组
     const [initCateIds, setInitCateIds] = useState([]);//state参数product所属的分类id
+    const [detailDescription, setDetailDescription] = useState('');//商品详情描述
 
     //组件挂载时查询商品分类
     useEffect(() => {
@@ -105,6 +108,10 @@ function ProductAddUpdate(props) {
         });
     }
 
+    function onFormFinish() {
+
+    }
+
     const cardTitle = (
         <button className={'op-btn-prod back-prod-home'}>
             <ArrowLeftOutlined/>&nbsp;&nbsp;返回
@@ -113,7 +120,7 @@ function ProductAddUpdate(props) {
     const cardExtra = (<span className={'add-or-update'}>{product ? '修改' : '添加'}商品</span>);
     return (
         <Card title={cardTitle} extra={cardExtra}>
-            <Form labelCol={{span: 2}} wrapperCol={{span: 8}}>
+            <Form labelCol={{span: 2}} wrapperCol={{span: 8}} onFinish={onFormFinish}>
                 <Item label={'商品名称'} name={'prodName'} initialValue={product ? product.name : ''}
                       rules={[{required: true, message: '商品名称必须输入'}]}>
                     <Input placeholder={'请输入商品名称'}/>
@@ -136,6 +143,14 @@ function ProductAddUpdate(props) {
                 <Item label={'商品图片'}>
                     {/*imgs用于在更新商品时显示已有图片，setProductImages函数用于将子组件的图片文件名传递至父组件*/}
                     <PictureWall imgs={product ? product.imgs : []} setProductImages={setProductImages}/>
+                </Item>
+                <Item label={'商品详情'} labelCol={{span: 2}} wrapperCol={{span: 20}}>
+                    <BraftEditor value={detailDescription} language={'zh'}
+                                 onChange={setDetailDescription}
+                                 style={{border: '2px solid #cccccc', height: 450}}/>
+                </Item>
+                <Item>
+                    <Button type={'primary'} htmlType={'submit'}>提交</Button>
                 </Item>
             </Form>
         </Card>
