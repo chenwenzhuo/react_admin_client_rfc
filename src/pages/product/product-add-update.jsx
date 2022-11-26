@@ -1,10 +1,10 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
-import {useLocation} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {Button, Card, Cascader, Form, Input, message} from 'antd'
 import {ArrowLeftOutlined} from '@ant-design/icons';
-import BraftEditor from 'braft-editor'
-import 'braft-editor/dist/index.css'
+import BraftEditor from 'braft-editor';
+import 'braft-editor/dist/index.css';
 
 import ajaxMtd from "../../api/ajax";
 import PictureWall from "./picture-wall";
@@ -14,25 +14,23 @@ const {TextArea} = Input;
 
 function ProductAddUpdate() {
     const {state: {product}} = useLocation();//取state参数
+    const navigate = useNavigate();
     const [categories, setCategories] = useState([]);//商品一级分类数组
-    const [initCateIds, setInitCateIds] = useState([]);//state参数product所属的分类id
-    const [detailDescription, setDetailDescription] = useState('');//商品详情描述
+    // const [initCateIds, setInitCateIds] = useState([]);//state参数product所属的分类id
+    const [images, setImages] = useState([]);//商品的图片名称数组
+    const [detailState, setDetailState] = useState(BraftEditor.createEditorState(null));//商品详情描述
 
     //组件挂载时查询商品分类
     useEffect(() => {
         reqCategories(0);
     }, []);
 
-    //初始化initCateIds
+    //初始化商品详情
     useEffect(() => {
-        const cateIds = [];
-        if (product) {
-            cateIds.push(product.categoryId);
-            if (product.pCategoryId !== '0') {//父分类id不为0时，将父分类id加到数组头部
-                cateIds.unshift(product.pCategoryId);
-            }
+        if (!product) {
+            return;
         }
-        setInitCateIds(cateIds);
+        setDetailState(BraftEditor.createEditorState(product.detail));
     }, []);
 
     async function reqCategories(parentId) {
@@ -95,12 +93,14 @@ function ProductAddUpdate() {
     }
 
     function setProductImages(imgs) {
-
+        setImages(imgs);
     }
 
     function validatePrice(_, value) {
         return new Promise((resolve, reject) => {
-            if (value <= 0) {
+            if (!/^\d+$/.test(value) && !/^\d+.\d+$/.test(value)) {
+                reject('只能输入数字');
+            } else if (value <= 0) {
                 reject('商品价格应大于0');
             } else {
                 resolve();
@@ -108,16 +108,49 @@ function ProductAddUpdate() {
         });
     }
 
-    function onFormFinish() {
-
+    async function onFormFinish(values) {
+        console.log(values);
+        //获取数据参数
+        const {prodName, prodDesc, prodPrice, prodCategories} = values;
+        const categoryId = prodCategories.length === 1 ? prodCategories[0] : prodCategories[1];//商品所属分类id
+        const pCategoryId = prodCategories.length === 1 ? '0' : prodCategories[0];//商品所属分类的父分类id
+        const detail = detailState.toHTML();//商品详情
+        const productObj = {//封装商品对象
+            categoryId, pCategoryId,
+            name: prodName,
+            price: prodPrice,
+            desc: prodDesc,
+            imgs: images,
+            detail
+        };
+        if (product) {//若为更新，则需要_id属性
+            productObj._id = product._id;
+        }
+        //发送请求
+        const reqURL = `/manage/product/${product ? 'update' : 'add'}`;//请求url
+        const response = await ajaxMtd(reqURL, productObj, 'POST');
+        if (response.status === 0) {
+            navigate(-1);
+            message.success(`${product ? '更新' : '添加'}商品成功`);
+        } else {
+            message.error(`${product ? '更新' : '添加'}商品失败`);
+        }
     }
 
     const cardTitle = (
-        <button className={'op-btn-prod back-prod-home'}>
+        <button className={'op-btn-prod back-prod-home'}
+                onClick={() => navigate(-1)}>
             <ArrowLeftOutlined/>&nbsp;&nbsp;返回
         </button>
     );
     const cardExtra = (<span className={'add-or-update'}>{product ? '修改' : '添加'}商品</span>);
+    const cateIds = [];
+    if (product) {
+        cateIds.push(product.categoryId);
+        if (product.pCategoryId !== '0') {//父分类id不为0时，将父分类id加到数组头部
+            cateIds.unshift(product.pCategoryId);
+        }
+    }
     return (
         <Card title={cardTitle} extra={cardExtra}>
             <Form labelCol={{span: 2}} wrapperCol={{span: 8}} onFinish={onFormFinish}>
@@ -132,22 +165,21 @@ function ProductAddUpdate() {
                 <Item label={'商品价格'} name={'prodPrice'} initialValue={product ? product.price : ''}
                       rules={[
                           {required: true, message: '商品价格必须输入'},
-                          {type: 'number', message: '只能输入数字'},
                           {validator: validatePrice}]}>
                     <Input placeholder={'请输入商品价格'} addonBefore={'¥'} addonAfter={"元"}/>
                 </Item>
-                <Item label={'商品分类'} name={'prodCategories'} initialValue={initCateIds}
+                <Item label={'商品分类'} name={'prodCategories'} initialValue={cateIds}
                       rules={[{required: true, message: '必须选择商品分类'}]}>
-                    <Cascader placeholder={'请选择商品分类'} options={categories} loadData={loadSubCategories}/>
+                    <Cascader placeholder={'请选择商品分类'} options={categories} loadData={loadSubCategories}
+                              allowClear={false} changeOnSelect={true}/>
                 </Item>
                 <Item label={'商品图片'}>
                     {/*imgs用于在更新商品时显示已有图片，setProductImages函数用于将子组件的图片文件名传递至父组件*/}
                     <PictureWall imgs={product ? product.imgs : []} setProductImages={setProductImages}/>
                 </Item>
                 <Item label={'商品详情'} labelCol={{span: 2}} wrapperCol={{span: 20}}>
-                    <BraftEditor value={detailDescription} language={'zh'}
-                                 onChange={setDetailDescription}
-                                 style={{border: '2px solid #cccccc', height: 450}}/>
+                    <BraftEditor value={detailState} onChange={setDetailState}
+                                 language={'zh'} style={{border: '2px solid #cccccc', height: 450}}/>
                 </Item>
                 <Item>
                     <Button type={'primary'} htmlType={'submit'}>提交</Button>
