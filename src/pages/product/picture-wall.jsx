@@ -95,7 +95,8 @@ function PictureWall(props) {
                     fileList={fileList} onChange={onFileListChange} onPreview={onPreviewImage}>
                 {fileList.length >= 3 ? null : uploadButton}
             </Upload>
-            <Modal open={previewVisible} title={previewTitle} onCancel={cancelPreview}>
+            <Modal open={previewVisible} title={previewTitle} footer={[]}
+                   onCancel={cancelPreview}>
                 <img src={previewImage} alt={'product'}/>
             </Modal>
         </>
