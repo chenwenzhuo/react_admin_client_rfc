@@ -95,7 +95,7 @@ function ProductDetail() {
                 </Item>
             </List>
             {/*footer属性用于去掉弹窗按钮*/}
-            <Modal open={showPreview} footer={[]}
+            <Modal open={showPreview} title={'图片预览'} footer={[]}
                    onCancel={hideImagePreview}>
                 <img src={previewSrc} alt={'preview'}/>
             </Modal>
