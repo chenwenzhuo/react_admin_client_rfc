@@ -45,7 +45,9 @@ function LeftNav(props) {
         let curPathname = location.pathname;
         //若当前请求的是商品管理或其子路由界面
         if (curPathname.indexOf('product') >= 0) {
-            curPathname = '/product';//将curPath值改为/product，使得进入子路由界面后LeftNav中菜单项也能选中
+            curPathname = '/product';//将curPathname值改为/product，使得进入子路由界面后LeftNav中菜单项也能选中
+        } else if (curPathname === '/') {
+            curPathname = '/home';//将curPathname值改为/home，解决登陆后首页菜单项无法自动选中的问题
         }
         setSelectedMenuKey(curPathname);
     }, []);
