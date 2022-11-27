@@ -19,10 +19,12 @@ function LeftNav(props) {
     const [items, setItems] = useState([]);
     const [menuItemParams] = useState([
         {label: '首页', key: '/home', icon: <HomeOutlined/>},
+        {label: '商品', key: '/prodCate', icon: <AppstoreOutlined/>},
         {label: '品类管理', key: '/category', icon: <UnorderedListOutlined/>},
         {label: '商品管理', key: '/product', icon: <ToolOutlined/>},
         {label: '用户管理', key: '/user', icon: <UserOutlined/>},
         {label: '角色管理', key: '/role', icon: <CheckCircleOutlined/>},
+        {label: '图形图表', key: '/charts', icon: <AreaChartOutlined/>},
         {label: '柱形图', key: '/barchart', icon: <BarChartOutlined/>},
         {label: '折线图', key: '/linechart', icon: <LineChartOutlined/>},
         {label: '饼图', key: '/piechart', icon: <PieChartOutlined/>},
@@ -72,7 +74,7 @@ function LeftNav(props) {
         const userItems = [];
         menuItemParams.forEach(itemParam => {
             //菜单key不在已登陆的用户的menus数组中，直接返回
-            if (menus.indexOf(itemParam.key)) {
+            if (menus.indexOf(itemParam.key) < 0) {
                 return;
             }
             //已登陆用户具有当前菜单权限时，将菜单对象加入userItems数组
