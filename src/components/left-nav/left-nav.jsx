@@ -1,5 +1,6 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import React, {useEffect, useState} from 'react';
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate} from "react-router-dom";
 import {connect} from 'react-redux';//connect用于连接UI组件与redux
 import {Menu} from 'antd';
 import {
@@ -29,13 +30,38 @@ function LeftNav(props) {
         {label: '折线图', key: '/linechart', icon: <LineChartOutlined/>},
         {label: '饼图', key: '/piechart', icon: <PieChartOutlined/>},
     ]);
+    const [selectedMenuKey, setSelectedMenuKey] = useState('');//被选中的菜单项key值
+    const [fatherMenuKey, setFatherMenuKey] = useState('');//被选中的菜单项的父菜单key值
     const navigate = useNavigate();
+    const location = useLocation();
 
     //第二个参数传入空数组，不监听任何state，只在初始化时执行一次，相当于componentDidMount
     useEffect(() => {
         initMenuItems();
-        //eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
+
+    //根据当前菜单路径，设置Menu组件中被选中的项
+    useEffect(() => {
+        let curPathname = location.pathname;
+        //若当前请求的是商品管理或其子路由界面
+        if (curPathname.indexOf('product') >= 0) {
+            curPathname = '/product';//将curPath值改为/product，使得进入子路由界面后LeftNav中菜单项也能选中
+        }
+        setSelectedMenuKey(curPathname);
+    }, []);
+
+    //根据当前菜单路径，设置Menu组件中应展开的父菜单
+    useEffect(() => {
+        //在items数组中查找当前菜单项的父菜单key值
+        const fatherMenuItem = items.find(it => {
+            if (!it.children) {//items数组当前项没有子菜单，直接返回false
+                return false;
+            }
+            //当前项有子菜单时
+            return (it.children.find(cIt => cIt.key === selectedMenuKey) !== undefined);
+        });
+        setFatherMenuKey(fatherMenuItem ? fatherMenuItem.key : '');
+    }, [selectedMenuKey]);
 
     function getItem(label, key, icon, children, type) {
         return {key, icon, children, label, type,};
@@ -127,16 +153,20 @@ function LeftNav(props) {
         if (keyPath.length === 1) {//keyPath长度为1，则点击的是外层菜单，可直接跳转
             navigate(key, {
                 replace: false,
-                state: {menuName: fatherItem.label}
+                state: {menuName: fatherItem.label}//state参数用于Header组件中显示菜单名称
             });
-            return;
+        } else {//keyPath长度大于1，则点击的是子菜单，需要查找子菜单名称
+            const sonItem = fatherItem.children.find(it => it.key === keyPath[0]);
+            navigate(key, {
+                replace: false,
+                state: {menuName: sonItem.label}
+            });
         }
-        //keyPath长度大于1，则点击的是子菜单，需要查找子菜单名称
-        const sonItem = fatherItem.children.find(it => it.key === keyPath[0]);
-        navigate(key, {
-            replace: false,
-            state: {menuName: sonItem.label}
-        });
+        setSelectedMenuKey(key);
+    }
+
+    function onOpenKeyChange(keys) {
+        setFatherMenuKey(keys[keys.length - 1]);
     }
 
     return (
@@ -146,7 +176,10 @@ function LeftNav(props) {
                 <span className={'left-nav-title'}>商品管理系统</span>
             </div>
             <Menu defaultSelectedKeys={['/home']} mode="inline" theme="dark"
-                  items={items} onClick={onMenuItemClick}/>
+                  items={items} onClick={onMenuItemClick}
+                  selectedKeys={[selectedMenuKey]}
+                  openKeys={fatherMenuKey ? [fatherMenuKey] : []}
+                  onOpenChange={onOpenKeyChange}/>
         </div>
     );
 }
