@@ -109,7 +109,6 @@ function ProductAddUpdate() {
     }
 
     async function onFormFinish(values) {
-        console.log(values);
         //获取数据参数
         const {prodName, prodDesc, prodPrice, prodCategories} = values;
         const categoryId = prodCategories.length === 1 ? prodCategories[0] : prodCategories[1];//商品所属分类id

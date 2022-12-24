@@ -124,8 +124,6 @@ function Category() {
 
     function handleModifyCate() {
         modCateFormRef.current.validateFields().then(async values => {
-            console.log('------------------modFormFields------------------');
-            console.log(values);
             const response = await ajaxMtd('/manage/category/update', {
                 categoryId: targetCategory._id,
                 categoryName: values.newCateName

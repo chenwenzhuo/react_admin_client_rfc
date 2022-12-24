@@ -52,7 +52,6 @@ function ProductHome() {
     }
 
     function handleAddUpdateProduct(product) {
-        console.log('-----------------handleAddUpdateProduct-----------------');
         navigate('add_update', {replace: false, state: {product}});
     }
 
