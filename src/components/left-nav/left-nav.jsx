@@ -134,6 +134,7 @@ function LeftNav(props) {
     function checkFatherMenu(userItems, itemParam, fmKey) {
         const fatherMenu = userItems.find(item => item.key === fmKey);
         if (fatherMenu) {//父菜单已添加到userItems，则向其children数组中添加子菜单
+            fatherMenu.children = [];
             fatherMenu.children.push(getItem(itemParam.label, itemParam.key, itemParam.icon));
             return;
         }
